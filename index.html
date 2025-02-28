@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba WebSocket</title>
+  <!-- Librerías para SockJS y StompJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #status { margin-bottom: 20px; }
+    .mensaje { margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Prueba de WebSocket</h1>
+  <div id="status">Conectando...</div>
+  <div id="mensajes"></div>
+
+  <script>
+    // Conecta al endpoint del WebSocket (ajusta la URL si es necesario)
+    var socket = new SockJS('http://localhost:8080/ws');
+    var stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+      document.getElementById('status').innerText = 'Conectado: ' + frame;
+      console.log('Conectado: ' + frame);
+
+      // Suscribirse al tópico que definiste en la configuración, por ejemplo "/topic/reportes"
+      stompClient.subscribe('/topic/reportes', function(message) {
+        console.log("Mensaje recibido: " + message.body);
+        var divMensaje = document.createElement('div');
+        divMensaje.className = 'mensaje';
+        divMensaje.innerText = "Mensaje recibido: " + message.body;
+        document.getElementById('mensajes').appendChild(divMensaje);
+      });
+    }, function(error) {
+      document.getElementById('status').innerText = 'Error de conexión: ' + error;
+      console.error('Error de conexión: ', error);
+    });
+  </script>
+</body>
+</html>
